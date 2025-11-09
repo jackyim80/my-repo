@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: whoami-deployment
+spec:
+  replicas: 3 # 3개의 복제본 (자가 치유)
+  selector:
+    matchLabels:
+      app: whoami
+  template:
+    metadata:
+      labels:
+        app: whoami # (중요) Service가 이 꼬리표(Label)를 찾음
+    spec:
+      containers:
+      - name: whoami-container
+        image: containous/whoami # Pod 호스트명을 보여주는 앱
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: whoami-service
+spec:
+  type: ClusterIP # (기본값) 클러스터 내부 전용
+  selector:
+    app: whoami # 'app: whoami' 꼬리표를 가진 Pod만 찾음
+  ports:
+    - protocol: TCP
+      port: 80       # 서비스가 80번으로 받아서
+      targetPort: 80 # Pod의 80번으로 전달
